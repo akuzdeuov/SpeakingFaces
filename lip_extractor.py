@@ -103,8 +103,8 @@ for rgbVideoPath in rgbVideoPaths:
 
 		# warp the rgb frame
 		# to align it with the thermal frame
-		warpedRGB = cv2.warpPerspective(frameRGB, H,
-					(W_thr, H_thr), flags=cv2.INTER_LINEAR)
+		warpedRGB = cv2.warpPerspective(frameRGB, H, (W_thr, H_thr), 
+						flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
 
 		# adjust the alignment if there is still 
 		# some misalignment among x and y axises
