@@ -114,7 +114,8 @@ for rgbVideoPath in rgbVideoPaths:
 		# give the rgb frame to the landmark detector
 		# as an input and get a bouding box of the lip
 		# as an output
-		(startX, startY, endX, endY) = lip_region_extractor(face_net, warpedRGB, frameThr, args["confidence"])
+		shape = lip_region_extractor(face_net, warpedRGB, frameThr, args["confidence"], dnn_mode=False)
+		(startX, startY, endX, endY) = (shape[2][0], shape[2][1], shape[14][0], shape[8][1])
 
 		# if the lip region was not detected properly
 		# then save and skip this frame
@@ -141,6 +142,10 @@ for rgbVideoPath in rgbVideoPaths:
 			# then replace its RED channel by the 
 			# RED channel of the thermal image
 			rgb_copy = warpedRGB.copy()
+			# draw facial landmarks
+			for (x, y) in shape:
+				cv2.circle(rgb_copy, (x, y), 2, (0, 255, 0), -1)
+
 			rgb_copy[:, :, 2] = frameThr[:, :, 2]
 
 			# show the images
