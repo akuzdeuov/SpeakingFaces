@@ -51,7 +51,7 @@ dy = args["dy"]
 print("[INFO] loading the face and landmark predictors ...")
 face_net = cv2.dnn.readNetFromCaffe("models/deploy.prototxt.txt", 
 	"models/res10_300x300_ssd_iter_140000.caffemodel")
-landmark_predictor = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")
+#landmark_predictor = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")
 
 # grab the path to the visual videos in our dataset
 dataset_path = "{}sub_{}/trial_{}".format(args["dataset"], args["sub_info"][0],
@@ -114,8 +114,7 @@ for rgbVideoPath in rgbVideoPaths:
 		# give the rgb frame to the landmark detector
 		# as an input and get a bouding box of the lip
 		# as an output
-		(startX, startY, endX, endY) = lip_region_extractor(face_net, landmark_predictor, 
-			warpedRGB, frameThr, args["confidence"])
+		(startX, startY, endX, endY) = lip_region_extractor(face_net, warpedRGB, frameThr, args["confidence"])
 
 		# if the lip region was not detected properly
 		# then save and skip this frame
