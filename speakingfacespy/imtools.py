@@ -112,7 +112,7 @@ def face_region_extractor(face_net, visible_image, thermal_image, threshold):
 		return (None, None, None, None)
 
 
-def lip_region_extractor(face_net, landmark_predictor, visible_image, thermal_image, threshold, mode=False):
+def lip_region_extractor(face_net, visible_image, thermal_image, threshold, dnn_mode=False):
 	# convert bgr to grayscale image
 	gray = cv2.cvtColor(visible_image, cv2.COLOR_BGR2GRAY)
 
@@ -125,17 +125,18 @@ def lip_region_extractor(face_net, landmark_predictor, visible_image, thermal_im
 		# determine the facial landmark for the face region, then
 		# convert the facial landmark (x, y)-coordinates to a Numpy
 		# array
-		if mode: 
+		if dnn_mode: 
 			rect = dlib.rectangle(startX, startY, endX, endY)
-			shape = face_recognition.face_landmarks(gray, [(startY, endX, endY, startX)])
-			shape = shape[0]['chin']
 			#shape = landmark_predictor(gray, rect)
 			#shape = face_utils.shape_to_np(shape)
+			shape = face_recognition.face_landmarks(gray, [(startY, endX, endY, startX)])
 		else:	
+			#shape = face_recognition.face_landmarks(gray, [(startY, endX, endY, startX)])
 			shape = face_recognition.face_landmarks(gray)
-			shape = shape[0]['chin']
+		
+		shape = shape[0]['chin']
 
-		return (shape[2][0], shape[2][1], shape[14][0], shape[8][1])
+		return shape
 	
 	# otherwise return Nones
 	else:
