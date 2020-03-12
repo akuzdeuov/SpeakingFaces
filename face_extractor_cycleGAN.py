@@ -89,8 +89,8 @@ for rgbImagePath in rgbImagePaths:
 
 		# warp the rgb image
 		# to align with the thermal image
-		rgb = cv2.warpPerspective(rgb, H,
-					(W_thr, H_thr), flags=cv2.INTER_LINEAR)
+		rgb = cv2.warpPerspective(rgb, H, (W_thr, H_thr), 
+				flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
 
 		# adjust the alignment if there is still 
 		# some misalignment among x and y axises
