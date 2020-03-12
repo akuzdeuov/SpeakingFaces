@@ -127,10 +127,12 @@ def lip_region_extractor(face_net, landmark_predictor, visible_image, thermal_im
 		# array
 		if mode: 
 			rect = dlib.rectangle(startX, startY, endX, endY)
-			shape = landmark_predictor(gray, rect)
-			shape = face_utils.shape_to_np(shape)
-		else:	
 			shape = face_recognition.face_landmarks(gray, [(startY, endX, endY, startX)])
+			shape = shape[0]['chin']
+			#shape = landmark_predictor(gray, rect)
+			#shape = face_utils.shape_to_np(shape)
+		else:	
+			shape = face_recognition.face_landmarks(gray)
 			shape = shape[0]['chin']
 
 		return (shape[2][0], shape[2][1], shape[14][0], shape[8][1])
