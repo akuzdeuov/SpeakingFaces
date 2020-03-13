@@ -16,7 +16,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", required=True,
 	help="path to dataset")
 ap.add_argument("-v", "--video", type=str, default="video_only",
-	help="video type for processing: video_only/video_audio")
+	help="path to video files: video_only/video_audio")
 ap.add_argument("-x", "--dx", type=int, default=0,
 	help="shift in x axis to dx pixels")
 ap.add_argument("-y", "--dy", type=int, default=0,
