@@ -1,7 +1,6 @@
 # import the necessary packages
 from imutils import paths
 from speakingfacespy.imtools import pathToThermalImage
-from speakingfacespy.imtools import face_region_extractor
 from speakingfacespy.imtools import homography_matrix
 from speakingfacespy.imtools import createDirectory
 import imutils
@@ -17,12 +16,12 @@ ap.add_argument("-d", "--dataset", required=True,
 	help="path to dataset")
 ap.add_argument("-n", "--frame", type=int, default=1,
 	help="process every n'th frame")
-ap.add_argument("-x", "--dx", type=int, default=0,
-	help="shift in x axis to dx pixels")
-ap.add_argument("-y", "--dy", type=int, default=0,
-	help="shift in y axis to dy pixels")
 ap.add_argument("-i", "--sub_info",  nargs='+', type=int,
 	help="subject info: ID, trial #")
+ap.add_argument("-y", "--dy",  nargs='+', type=int,
+	help="dy shifts based on positions")
+ap.add_argument("-x", "--dx",  nargs='+', type=int,
+	help="x shifts based on positions")
 ap.add_argument("-s", "--show", type=int, default=0,
 	help="visualize extracted faces")
 args = vars(ap.parse_args())
@@ -36,10 +35,6 @@ M = df.to_numpy()
 # which will be used to align visible 
 # and thermal frames
 H = homography_matrix(M, N=1300)
-
-# shifts in x and y axises
-dx = args["dx"]
-dy = args["dy"]
 
 # grab the path to the visual images in our dataset
 dataset_path = "{}sub_{}/trial_{}".format(args["dataset"], args["sub_info"][0],
@@ -55,6 +50,17 @@ for rgbImagePath in rgbImagePaths:
 
 	# extract the current image info
 	sub, trial, pos, image_id = rgbImagePath.split("/")[-1].split("_")[-5:-1]
+
+	# initialize lists of shifts
+	dy = args["dy"][int(pos) - 1]
+	dx = args["dx"][int(pos) - 1]
+
+	# process images for the position
+	# given by the argument only if "show" mode
+	# is enabled
+	if args["sub_info"][2] != int(pos) and args["show"]:
+		cv2.destroyAllWindows()
+		continue
 
 	# process only n'th frames  
 	if int(image_id) % args["frame"] == 0:
@@ -78,8 +84,18 @@ for rgbImagePath in rgbImagePaths:
 
 		# adjust the alignment if there is still 
 		# some misalignment among x and y axises
-		rgb = rgb[dy:H_thr, dx:W_thr]
-		thr = thr[0:H_thr - dy, 0:W_thr - dx]
+		if dy >= 0 and dx >= 0:
+			rgb = rgb[dy:H_thr, dx:W_thr]
+			thr = thr[0:H_thr - dy, 0:W_thr - dx]
+		elif dy >= 0 and dx < 0:
+			rgb = rgb[dy:H_thr, 0:W_thr + dx]
+			thr = thr[0:H_thr - dy, -dx:W_thr]
+		elif dy < 0 and dx >= 0:
+			rgb = rgb[0:H_thr + dy, dx:W_thr]
+			thr = thr[-dy:H_thr, 0:W_thr - dx]
+		else:
+			rgb = rgb[0:H_thr + dy, 0:W_thr + dx]
+			thr = thr[-dy:H_thr, -dx:W_thr]
 
 		if args["show"]:
 			# make a copy of the rgb image
@@ -89,7 +105,7 @@ for rgbImagePath in rgbImagePaths:
 			rgb_copy[:, :, 2] = thr[:, :, 2]
 
 			# show the images
-			cv2.imshow("Output", np.hstack([rgb, thr, rgb_copy]))
+			cv2.imshow("Sub:{} Trial:{} Pos:{} Frame:{}".format(sub, trial, pos, image_id), np.hstack([rgb, thr, rgb_copy]))
 			key = cv2.waitKey(0) & 0xFF
 
 			# if the 'q' key is pressed, stop the loop
