@@ -9,6 +9,13 @@ import numpy as np
 
 # obtain a path to a thermal image
 def pathToThermalImage(rgbImagePath, dataset_path, thermal_image_folder="/thr_image/"):
+	"""
+	Generates a path to the thermal images
+	:param rgbImagePath: path to the rgb images
+	:param dataset_path: path to the dataset
+	:param thermal_image_folder: name of a folder with thermal images
+	"""
+	
 	# modify the visible image file name to obtain 
 	# the corresponding thermal video file name
 	rgb_file = list(rgbImagePath.split(os.path.sep)[-1])
@@ -67,6 +74,13 @@ def non_max_suppression_fast(boxes, overlapThresh):
 
 
 def face_region_extractor(face_net, visible_image, thermal_image, threshold):
+	"""
+	Returns a bounding box for a face in the visible image
+	:param face_net: DNN face detector
+	:param visible_image: a numpy array (MxNx3)
+	:param thermal image: a numpy array (MxNx3)
+	:param threshold: a minimum probability for the face detector
+	"""
 	# convert bgr to grayscale image
 	gray = cv2.cvtColor(visible_image, cv2.COLOR_BGR2GRAY)
 
@@ -113,6 +127,15 @@ def face_region_extractor(face_net, visible_image, thermal_image, threshold):
 
 
 def lip_region_extractor(face_net, visible_image, thermal_image, threshold, dnn_mode=False):
+	"""
+	Returns a bounding box for a lip in the visible image
+	:param face_net: DNN face detector
+	:param visible_image: a numpy array (MxNx3)
+	:param thermal image: a numpy array (MxNx3)
+	:param threshold: a minimum probability for the face detector
+	:param dnn_mode: If True the use OpenCV's dnn face detector 
+	otherwise use HOG based face detector
+	"""
 	# convert bgr to grayscale image
 	gray = cv2.cvtColor(visible_image, cv2.COLOR_BGR2GRAY)
 
@@ -144,6 +167,11 @@ def lip_region_extractor(face_net, visible_image, thermal_image, threshold, dnn_
 
 
 def homography_matrix(M, N=40):
+	"""
+	Returns a homography matrix
+	:param M: a numpy array with matched features
+	:param N: a number of points
+	"""
 	# define matching point coordinates between two images
 	ptsA = M[:N,3:]
 	ptsB = M[:N,1:3]
@@ -155,6 +183,10 @@ def homography_matrix(M, N=40):
 
 
 def createDirectory(dirName):
+	"""
+	Creates a new directory 
+	:param dirName: a directory path
+	"""
 	# Create target directory & all intermediate directories if don't exists
 	if not os.path.exists(dirName):
 		os.makedirs(dirName)
