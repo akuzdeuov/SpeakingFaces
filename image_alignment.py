@@ -31,11 +31,6 @@ args = vars(ap.parse_args())
 df = pd.read_excel (r'calibration/matched_features.xlsx')
 M = df.to_numpy()
 
-# estimate a homoghraphy matrix
-# which will be used to align visible 
-# and thermal frames
-H = homography_matrix(M, N=1300)
-
 # grab the path to the visual images in our dataset
 dataset_path = "{}sub_{}/trial_{}".format(args["dataset"], args["sub_info"][0],
 					args["sub_info"][1])  
@@ -51,16 +46,31 @@ for rgbImagePath in rgbImagePaths:
 	# extract the current image info
 	sub, trial, pos, image_id = rgbImagePath.split("/")[-1].split("_")[-5:-1]
 
-	# initialize lists of shifts
-	dy = args["dy"][int(pos) - 1]
-	dx = args["dx"][int(pos) - 1]
-
 	# process images for the position
 	# given by the argument only if "show" mode
 	# is enabled
 	if args["sub_info"][2] != int(pos) and args["show"]:
 		cv2.destroyAllWindows()
 		continue
+
+	# initialize lists of shifts
+	dy = args["dy"][int(pos) - 1]
+	dx = args["dx"][int(pos) - 1]
+
+	ptsA = np.array([[399 + dx, 345 + dy], [423 + dx, 293 + dy], [293 + dx, 316 + dy], [269 + dx, 368 + dy]])
+	ptsB = np.array([[249, 237], [267, 196], [169, 214], [151, 254]])
+
+	# estimate a homography matrix to warp the visible image
+	(H, status) = cv2.findHomography(ptsA, ptsB, cv2.RANSAC, 2.0)
+	
+	# initialize lists of shifts
+	#dy = args["dy"][int(pos) - 1]
+	#dx = args["dx"][int(pos) - 1]
+
+	# estimate a homoghraphy matrix
+	# which will be used to align visible 
+	# and thermal frames
+	#H = homography_matrix(M, dx, dy, N=10)
 
 	# process only n'th frames  
 	if int(image_id) % args["frame"] == 0:
@@ -81,21 +91,6 @@ for rgbImagePath in rgbImagePaths:
 		# to align with the thermal image
 		rgb = cv2.warpPerspective(rgb, H, (W_thr, H_thr), 
 			flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
-
-		# adjust the alignment if there is still 
-		# some misalignment among x and y axises
-		if dy >= 0 and dx >= 0:
-			rgb = rgb[dy:H_thr, dx:W_thr]
-			thr = thr[0:H_thr - dy, 0:W_thr - dx]
-		elif dy >= 0 and dx < 0:
-			rgb = rgb[dy:H_thr, 0:W_thr + dx]
-			thr = thr[0:H_thr - dy, -dx:W_thr]
-		elif dy < 0 and dx >= 0:
-			rgb = rgb[0:H_thr + dy, dx:W_thr]
-			thr = thr[-dy:H_thr, 0:W_thr - dx]
-		else:
-			rgb = rgb[0:H_thr + dy, 0:W_thr + dx]
-			thr = thr[-dy:H_thr, -dx:W_thr]
 
 		if args["show"]:
 			# make a copy of the rgb image
