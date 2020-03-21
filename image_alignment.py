@@ -107,4 +107,4 @@ for rgbImagePath in rgbImagePaths:
 			if key == ord("q"):
 				break
 
-		cv2.imwrite("{}{}_{}_{}_{}.png".format(path, sub, trial, pos, image_id), rgb)
+		cv2.imwrite("{}{}_{}_{}_{}_2.png".format(path, sub, trial, pos, image_id), rgb)
